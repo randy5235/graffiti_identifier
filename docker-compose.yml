@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  web:
+    build:
+      context: "./ui"
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - "./ui:/app"
+      - "/app/node_modules"
+  api:
+    build:
+      context: "./api"
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./api:/app"
+      - "/app/node_modules"
