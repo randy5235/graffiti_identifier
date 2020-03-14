@@ -9,6 +9,8 @@ services:
     volumes:
       - "./ui:/app"
       - "/app/node_modules"
+    depends_on: 
+      - api
   api:
     container_name: graffiti-api
     build:
