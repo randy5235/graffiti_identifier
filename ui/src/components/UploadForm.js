@@ -3,7 +3,7 @@ import React from "react";
 const UploadForm = () => (
   <form
     className="upload-file"
-    action="http://192.168.1.123:3000/api/upload"
+    action="http://localhost:3000/api/upload"
     method="post"
     encType="multipart/form-data"
   >

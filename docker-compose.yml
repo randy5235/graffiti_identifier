@@ -10,6 +10,7 @@ services:
       - "./ui:/app"
       - "/app/node_modules"
   api:
+    container_name: graffiti-api
     build:
       context: "./api"
       dockerfile: Dockerfile
