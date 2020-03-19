@@ -1,24 +1,19 @@
-import React from "react";
+import React, {Component} from "react";
+//import ReactDOM from 'react-dom';
 import logo from "./logo.svg";
 import "./App.css";
+import UploadForm from "./components/UploadForm";
+import OLMap from "./components/OpenLayerMap"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>We will add an upload form here</p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component{
+
+    render()
+    {
+      return ([
+        <UploadForm></UploadForm>,
+        /*<OLMap></OLMap>*/
+      ]);
+    }
 }
 
 export default App;
