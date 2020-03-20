@@ -11,14 +11,13 @@ services:
       - "/app/node_modules"
     depends_on:
       - api
-      - maps
   api:
     container_name: graffiti-api
     build:
       context: "./api"
       dockerfile: Dockerfile
     ports:
-      - "3002:3002"
+      - "3000:3000"
     volumes:
       - "./api:/app"
       - "/app/node_modules"

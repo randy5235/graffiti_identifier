@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import UploadForm from "./components/UploadForm";
-import OLMap from "./components/OpenLayerMap"
+import MapsPage from "./components/Maps";
 
 class App extends React.Component{
 
@@ -11,7 +11,7 @@ class App extends React.Component{
     {
       return ([
         <UploadForm></UploadForm>,
-        /*<OLMap></OLMap>*/
+        <MapsPage></MapsPage>
       ]);
     }
 }
