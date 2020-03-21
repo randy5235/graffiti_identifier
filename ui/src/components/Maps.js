@@ -1,48 +1,82 @@
 import React from "react";
-import "../styles/Leaflet.css"
+import "../styles/Leaflet.css";
+import "../styles/OpenCage.css";
+import iconImg from "../styles/images/marker-icon.png";
+import iconShadow from "../styles/images/marker-shadow.png";
+
 class MapsPage extends React.Component {
   constructor(props)
   {
     super(props)
     this.myRef = React.createRef;
   }
+  
   /*global componentDidMount L, map, ol:true*/ // stop eslint from throwing errors/warnings since ol depends on the following external script
+  /*eslint no-undef: "warn"*/
   componentDidMount(){
-    const script = document.createElement("script");
-    script.src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js";
-    script.async = true;
-    document.head.appendChild(script);
 
+    const leafletScript = document.createElement("script");
+    const openCageScript = document.createElement("script");
+    leafletScript.async = true;
+    openCageScript.async = true;
+    leafletScript.src = "https://unpkg.com/leaflet@1.6.0/dist/leaflet.js";
+    openCageScript.src = "https://cdn.jsdelivr.net/gh/opencagedata/leaflet-opencage-search@1.3.0/dist/js/L.Control.OpenCageSearch.min.js";
 
-    script.onload = function()
+    document.head.appendChild(leafletScript);
+    leafletScript.onload = function()
+    {
+      document.head.appendChild(openCageScript);
+    }
+
+    openCageScript.onload = function()
     { // onload not supported by older IE TODO: add readystate functionality
-        // =================
-        // Map functionality
-        // =================
-        var lat = 37.41;
-        var lon = 8.82;
-        if(navigator.geolocation)
-        {
-          navigator.geolocation.getCurrentPosition(function(position){
-            lat = position.coords.latitude;
-            lon = position.coords.longitude;
-          });
-        }
-
-        var mapOptions = {
-          center: [45.6652, -122.521],
-          zoom: 10
-        }
-        var map = new L.map('map', mapOptions);
-
-        var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-
-        map.addLayer(layer);
-
-        var marker = L.marker([45.6652, -122.5215]);
-
-        marker.addTo(map);
+      // =================
+      // Map functionality
+      // =================
+      var lat = 37.41;
+      var lon = 8.82;
+      if(navigator.geolocation)
+      {
+        navigator.geolocation.getCurrentPosition(function(position){
+          lat = position.coords.latitude;
+          lon = position.coords.longitude;
+        });
       }
+
+      var mapOptions = {
+        center: [45.6652, -122.521],
+        zoom: 10
+      }
+        
+      var geocodeOptions = {
+        key: 'bf942964c7504d93987e3decca324bc6',// Testing level api key, 2500 requests per day, prefferably less than 1 per second.
+        limit: 10,
+        proximity: lat+', '+lon
+      }
+
+      var map = new L.map('map', mapOptions);
+
+      var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+
+      map.addLayer(layer);
+
+      var markerIcon = L.icon({
+        iconUrl: iconImg,
+        shadowUrl: iconShadow,
+    
+        iconSize:     [20, 30], // size of the icon
+        shadowSize:   [20, 30], // size of the shadow
+        iconAnchor:   [10, 0], // point of the icon which will correspond to marker's location
+        shadowAnchor: [5, 0],  // the same for the shadow
+        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      });
+
+      var marker = L.marker([45.6652, -122.5215], {icon: markerIcon});
+
+      marker.addTo(map);
+
+      var control = L.Control.openCageSearch(geocodeOptions).addTo(map);
+    }
   }
 
   render() {
