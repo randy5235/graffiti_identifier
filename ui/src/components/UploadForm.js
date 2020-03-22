@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import EXIF from "exif-js";
 
 class UploadForm extends React.Component {
