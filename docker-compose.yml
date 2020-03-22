@@ -11,8 +11,8 @@ services:
       - "/app/node_modules"
     depends_on:
       - api
-    environment: 
-      - OPENCAGE_API_KEY=${OPENCAGE_API_KEY}
+    environment:
+      - REACT_APP_OPENCAGE_API_KEY=${OPENCAGE_API_KEY}
   api:
     container_name: graffiti-api
     build:
