@@ -26,7 +26,7 @@ router.route('/upload').post(upload.single('image'), (req, res) => {
     console.log(`ERROR: ${error.message}`);
   }
   // res.send('File uploaded');
-  res.redirect(`http://localhost:3001/images/${req.file.filename}`)
+  res.redirect(`http://localhost:3000/images/${req.file.filename}`);
 });
 
 module.exports = router;

@@ -5,20 +5,19 @@ class UploadForm extends React.Component {
   ValidateForm(event) {
     // Convert gps coordinates as presented in exif data to a comma separated decimal pair.
     function GPSDegToDecString(lat, latRef, lon, lonRef) {
+      console.log(`lat value: `, lat);
       var retLat = 0;
-      var latComps = lat.toString().split(",");
-      retLat = parseInt(latComps[0]);
-      retLat += parseInt(latComps[1]) / 60;
-      retLat += parseInt(latComps[2]) / 3600;
+      retLat = parseFloat(lat[0]);
+      retLat += parseFloat(parseFloat(lat[1]) / 60);
+      retLat += parseFloat(parseFloat(lat[2]) / 3600);
       if (latRef === "S") {
         latRef = 0 - latRef;
       }
 
       var retLon = 0;
-      var lonComps = lon.toString().split(",");
-      retLon = parseInt(lonComps[0]);
-      retLon += parseInt(lonComps[1]) / 60;
-      retLon += parseInt(lonComps[2]) / 3600;
+      retLon = parseFloat(lon[0]);
+      retLon += parseFloat(parseFloat(lon[1]) / 60);
+      retLon += parseFloat(parseFloat(lon[2]) / 3600);
       if (latRef === "W") {
         latRef = 0 - latRef;
       }
@@ -35,6 +34,7 @@ class UploadForm extends React.Component {
 
     if (files[0] !== undefined) {
       // file selected
+      console.log(files);
       if (files[0].size > 8 * 1024 * 1024) {
         // 8 MB size limit
         console.log("file too large");
@@ -58,10 +58,17 @@ class UploadForm extends React.Component {
             lon === undefined ||
             lonRef === undefined
           ) {
+            console.log("DUDE!!!");
+            console.log(lat);
+            console.log(latRef);
+            console.log(lon);
+            console.log(lonRef);
+
             locInput.type = "text";
             return false;
           } // set the location input (Should confirm the formatting)
           else {
+            console.log(lat);
             locInput.value = GPSDegToDecString(lat, latRef, lon, lonRef);
             uploadForm.submit();
             return true;

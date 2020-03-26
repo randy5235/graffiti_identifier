@@ -5,7 +5,7 @@ services:
       context: "./ui"
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3000:3000"
     volumes:
       - "./ui:/app"
       - "/app/node_modules"
@@ -16,8 +16,8 @@ services:
     build:
       context: "./api"
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     volumes:
       - "./api:/app"
       - "/app/node_modules"
