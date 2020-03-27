@@ -1,10 +1,10 @@
-import React from "react";
-import L from "leaflet";
-import LCG from "leaflet-control-geocoder";
-import "../styles/Leaflet.css";
-import "../styles/OpenCage.css";
-import iconImg from "../styles/images/marker-icon.png";
-import iconShadow from "../styles/images/marker-shadow.png";
+import React from 'react';
+import L from 'leaflet';
+import LCG from 'leaflet-control-geocoder';
+import '../styles/Leaflet.css';
+import '../styles/OpenCage.css';
+import iconImg from '../styles/images/marker-icon.png';
+import iconShadow from '../styles/images/marker-shadow.png';
 
 class MapsPage extends React.Component {
   //default coordinates to roughly Los Angeles
@@ -23,10 +23,10 @@ class MapsPage extends React.Component {
       zoom: this.mapZoom
     };
 
-    this.map = new L.map("map", mapOptions);
+    this.map = new L.map('map', mapOptions);
 
     let layer = new L.TileLayer(
-      "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     );
 
     this.map.addLayer(layer);
@@ -53,7 +53,7 @@ class MapsPage extends React.Component {
     const geocoder = L.Control.Geocoder.nominatim();
     let marker;
 
-    this.map.on("click", e => {
+    this.map.on('click', e => {
       geocoder.reverse(
         e.latlng,
         this.map.options.crs.scale(this.map.getZoom()),
@@ -95,7 +95,7 @@ class MapsPage extends React.Component {
           this.renderMap();
         },
         error,
-        { enableHighAccuracy: true }
+        {enableHighAccuracy: true}
       );
     }
   }
@@ -105,7 +105,7 @@ class MapsPage extends React.Component {
       <div
         ref={this.myRef}
         id="map"
-        style={{ width: 400 + "px", height: 400 + "px" }}
+        style={{width: 400 + 'px', height: 400 + 'px'}}
         className="map"
       ></div>
     );
