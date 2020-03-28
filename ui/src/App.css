@@ -38,9 +38,8 @@
 }
 
 body{
-  margin: 1em;
   height: 100%;
   width: 100%;
+  overflow: hidden;
   font-family: sans-serif;
-  background-color: #feffc5;
 }

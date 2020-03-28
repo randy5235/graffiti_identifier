@@ -1,10 +1,11 @@
-import React from 'react';
-import L from 'leaflet';
-import LCG from 'leaflet-control-geocoder';
-import '../styles/Leaflet.css';
-import '../styles/OpenCage.css';
-import iconImg from '../styles/images/marker-icon.png';
-import iconShadow from '../styles/images/marker-shadow.png';
+import React from "react";
+import L from "leaflet";
+import LCG from "leaflet-control-geocoder";
+import "../styles/Leaflet.css";
+import "../styles/leaflet-control-geocoder.css";
+import iconImg from "../styles/images/marker-icon.png";
+import iconShadow from "../styles/images/marker-shadow.png";
+import UploadForm from "./UploadForm"
 
 class MapsPage extends React.Component {
   //default coordinates to roughly Los Angeles
@@ -12,6 +13,19 @@ class MapsPage extends React.Component {
   lon = -118;
   map = {};
   mapZoom = 8;
+
+  // define a custom marker icon as leaflet's default image pathing is broken...
+  markerIcon = L.icon({
+    iconUrl: iconImg,
+    shadowUrl: iconShadow,
+    iconSize: [20, 30], // size of the icon
+    shadowSize: [20, 30], // size of the shadow
+    iconAnchor: [10, 0], // point of the icon which will correspond to marker's location
+    shadowAnchor: [5, 0], // the same for the shadow
+    popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+  });
+
+
   constructor(props) {
     super(props);
     this.myRef = React.createRef;
@@ -20,7 +34,8 @@ class MapsPage extends React.Component {
   renderMap() {
     let mapOptions = {
       center: [this.lat, this.lon],
-      zoom: this.mapZoom
+      zoom: this.mapZoom,
+      zoomControl: false
     };
 
     this.map = new L.map('map', mapOptions);
@@ -31,50 +46,37 @@ class MapsPage extends React.Component {
 
     this.map.addLayer(layer);
 
-    // define a custom marker icon as leaflet's default image pathing is broken...
-    let markerIcon = L.icon({
-      iconUrl: iconImg,
-      shadowUrl: iconShadow,
-      iconSize: [20, 30], // size of the icon
-      shadowSize: [20, 30], // size of the shadow
-      iconAnchor: [10, 0], // point of the icon which will correspond to marker's location
-      shadowAnchor: [5, 0], // the same for the shadow
-      popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
-    });
-
-    // template for adding a marker
-
-    //var marker = L.marker([lat, lon], {icon: markerIcon});
-    //marker.addTo(map);
-
-    // Search for location information based on Map click and add a popup marker
     const control = L.Control.GeoCoder;
 
     const geocoder = L.Control.Geocoder.nominatim();
+
+    L.Control.geocoder().addTo(this.map);
+    
     let marker;
 
-    this.map.on('click', e => {
-      geocoder.reverse(
-        e.latlng,
-        this.map.options.crs.scale(this.map.getZoom()),
-        results => {
-          let r = results[0];
-          if (r) {
-            if (marker) {
-              marker
-                .setLatLng(r.center)
-                .setPopupContent(r.html || r.name)
-                .openPopup();
-            } else {
-              marker = L.marker(r.center)
-                .bindPopup(r.name)
-                .addTo(this.map)
-                .openPopup();
+    this.map.on("click", e => {
+        geocoder.reverse(
+          e.latlng,
+          this.map.options.crs.scale(this.map.getZoom()+3),//+3 sets higher zoom definition for more precise results
+          results => {
+            let r = results[0];
+            if (r) {
+              if (marker) {
+                marker
+                  .setLatLng(r.center)
+                  .setPopupContent(r.html || r.name)
+                  .openPopup();
+              } else {
+                marker = L.marker(r.center)
+                  .bindPopup(r.name)
+                  .addTo(this.map)
+                  .openPopup();
+              }
             }
           }
-        }
-      );
+        );
     });
+    
   }
 
   componentDidMount() {
@@ -100,14 +102,30 @@ class MapsPage extends React.Component {
     }
   }
 
+  // Function to pass to children for setting map view
+  MoveMapTo=(x, y, zoom)=>{
+    console.log(x, y, zoom);
+    this.map.setView([x, y], zoom);
+    var marker = L.marker([x, y], {icon: this.markerIcon});
+    marker.addTo(this.map);
+  }
+
   render() {
     return (
-      <div
-        ref={this.myRef}
-        id="map"
-        style={{width: 400 + 'px', height: 400 + 'px'}}
-        className="map"
-      ></div>
+      <div>
+        <div
+          ref={this.myRef}
+          id="map"
+          style={{width: "100%", height: "100%", position: 'absolute' }}
+          className="map"
+        >
+        </div>
+        <UploadForm AdjustMap={this.MoveMapTo.bind(this)}>
+        </UploadForm>
+        <form>
+          <input name="locationSearch" type="text"></input>
+        </form>
+        </div>
     );
   }
 }

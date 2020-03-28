@@ -7,7 +7,20 @@ import MapsPage from "./components/Maps";
 
 class App extends React.Component {
   render() {
-    return [<UploadForm></UploadForm>, <MapsPage></MapsPage>];
+    return [
+      <h2
+        style={{
+          position: 'absolute', 
+          top:0, left: 0, 
+          zIndex: 401, 
+          backgroundColor: '#000000', 
+          color:'white', 
+          padding:'8px'}}
+      >
+        graffiti_identifier
+      </h2>,
+    <MapsPage>
+    </MapsPage>];
   }
 }
 
