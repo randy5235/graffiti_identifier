@@ -8,6 +8,7 @@ class UploadForm extends React.Component {
 
   constructor(props){
     super(props);
+    console.log(this.props);
     this.container = React.createRef();
     this.uploadForm = React.createRef();
     this.uploadFile = React.createRef();
@@ -30,7 +31,7 @@ class UploadForm extends React.Component {
       retLat += Number(latComps[1]) / 60;
       retLat += Number(latComps[2]) / 3600;
       if (latRef === "S") {
-        latRef = 0 - latRef;
+        retLat = 0 - retLat;
       }
 
       var retLon = 0;
@@ -38,8 +39,8 @@ class UploadForm extends React.Component {
       retLon = Number(lonComps[0]);
       retLon += Number(lonComps[1]) / 60;
       retLon += Number(lonComps[2]) / 3600;
-      if (latRef === "W") {
-        latRef = 0 - latRef;
+      if (lonRef === "W") {
+        retLon = 0 - retLon;
       }
       var Coords = [retLat, retLon];
       return Coords;
@@ -51,39 +52,42 @@ class UploadForm extends React.Component {
     var uploadForm = this;
 
     var files = document.getElementById("upload-image").files;
-    var latInput = document.getElementById("upload-lat");
-    var lonInput = document.getElementById("upload-lon");
     if (files[0] !== undefined) {
       // file selected
-      console.log(files);
       if (files[0].size > 8 * 1024 * 1024) {
         // 8 MB size limit
         console.log("file too large");
-      } else if (latInput.value.length > 0) {
-        // location manually entered
-        // should check for formatting here
-        this.uploadForm.submit();
-      } else {
+      }
+      else {
         EXIF.getData(files[0], function() {
           var lat = EXIF.getTag(this, "GPSLatitude");
           var latRef = EXIF.getTag(this, "GPSLatitudeRef");
           var lon = EXIF.getTag(this, "GPSLongitude");
           var lonRef = EXIF.getTag(this, "GPSLongitudeRef");
 
-          // if any gps data is bad or nonexistent, request it manually
-          if (
-            lat === undefined ||
-            latRef === undefined ||
-            lon === undefined ||
-            lonRef === undefined
-          ) {
-          } // set the location input (Should confirm the formatting)
-          else {
-            var coordinates = GPSDegToDec(lat, latRef, lon, lonRef);
-            latInput.value = coordinates[0];
-            lonInput.value = coordinates[1];
-            uploadForm.props.AdjustMap(latInput.value, lonInput.value, 8);
+          uploadForm.props.parentMap.placingGraffiti = true;
+          var coordinates = [0,0];
+
+          // if any gps data is bad or nonexistent, slap it in the middle of the current map view
+          if (lat === undefined || latRef === undefined || lon === undefined || lonRef === undefined) 
+          {
+            coordinates = uploadForm.props.parentMap.map.getCenter();
           }
+          else // set the marker and view to those given by exif
+          {
+            coordinates = GPSDegToDec(lat, latRef, lon, lonRef);
+          }
+          
+          uploadForm.props.parentMap.map.setView(coordinates, 13);
+            
+          var src = URL.createObjectURL(files[0]);
+          uploadForm.props.parentMap.userMarker
+            .addTo(uploadForm.props.parentMap.userLayer)
+            .setLatLng(coordinates)
+            .bindPopup()
+            .setPopupContent("<img style='height:200px; width:200px;' id='marker-image' src='"+src+"' alt='uploaded-image'></img>")
+            .openPopup()
+            .dragging.enable();
         });
       }
       this.setState((state) => {
@@ -99,11 +103,16 @@ class UploadForm extends React.Component {
     this.uploadFile.current.click();
   };
   triggerSubmit = () => {
+    var coordinates = this.props.parentMap.userMarker.getLatLng();
+    this.uploadLat.current.value = coordinates['lat'];
+    this.uploadLon.current.value = coordinates['lng'];
     this.uploadSubmit.current.click();
     this.clearForm();
   };
   clearForm = () =>
   {
+    this.props.parentMap.placingGraffiti = false;
+    this.props.parentMap.userLayer.clearLayers();
     this.uploadFile.current.value = "";
     this.uploadLat.current.value = "";
     this.uploadLon.current.value = "";

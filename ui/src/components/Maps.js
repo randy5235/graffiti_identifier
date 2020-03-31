@@ -12,7 +12,11 @@ class MapsPage extends React.Component {
   lat = 34;
   lon = -118;
   map = {};
+  userLayer = {}; // layer for storing markers added by user
+  userMarker = {};
+  lRef = L;
   mapZoom = 8;
+  placingGraffiti = false;
 
   // define a custom marker icon as leaflet's default image pathing is broken...
   markerIcon = L.icon({
@@ -20,9 +24,9 @@ class MapsPage extends React.Component {
     shadowUrl: iconShadow,
     iconSize: [20, 30], // size of the icon
     shadowSize: [20, 30], // size of the shadow
-    iconAnchor: [10, 0], // point of the icon which will correspond to marker's location
-    shadowAnchor: [5, 0], // the same for the shadow
-    popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+    iconAnchor: [10, 30], // point of the icon which will correspond to marker's location
+    shadowAnchor: [5, 30], // the same for the shadow
+    popupAnchor: [0, -20] // point from which the popup should open relative to the iconAnchor
   });
 
 
@@ -40,41 +44,52 @@ class MapsPage extends React.Component {
 
     this.map = new L.map('map', mapOptions);
 
-    let layer = new L.TileLayer(
+    let mapLayer = new L.TileLayer(
       'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     );
 
-    this.map.addLayer(layer);
+    this.map.addLayer(mapLayer);
+
+    this.userMarker = L.marker([1, 1], {icon: this.markerIcon});
+
+    this.userLayer = L.layerGroup().addTo(this.map);
 
     const control = L.Control.GeoCoder;
 
     const geocoder = L.Control.Geocoder.nominatim();
 
     L.Control.geocoder().addTo(this.map);
-    
-    let marker;
 
     this.map.on("click", e => {
+        this.userLayer.clearLayers();
         geocoder.reverse(
           e.latlng,
-          this.map.options.crs.scale(this.map.getZoom()+3),//+3 sets higher zoom definition for more precise results
+          this.map.options.crs.scale(this.map.getZoom()+7),//+7 sets higher zoom definition for more precise results
           results => {
             let r = results[0];
             if (r) {
-              if (marker) {
-                marker
-                  .setLatLng(r.center)
-                  .setPopupContent(r.html || r.name)
-                  .openPopup();
-              } else {
-                marker = L.marker(r.center)
-                  .bindPopup(r.name)
-                  .addTo(this.map)
-                  .openPopup();
+              if (this.userMarker) {
+                this.userMarker
+                  .setLatLng(e.latlng)
+                  .bindPopup();
+                  if(!this.placingGraffiti)
+                  {
+                    this.userMarker.setPopupContent(r.html || r.name);
+                  }
+                  this.userMarker
+                  .openPopup()
+                  .dragging.enable();
               }
             }
           }
         );
+        this.userMarker.addTo(this.userLayer);
+    });
+
+    this.userMarker.on('dragend', e => {
+      this.userMarker
+        .bindPopup()
+        .openPopup();
     });
     
   }
@@ -104,10 +119,9 @@ class MapsPage extends React.Component {
 
   // Function to pass to children for setting map view
   MoveMapTo=(x, y, zoom)=>{
-    console.log(x, y, zoom);
     this.map.setView([x, y], zoom);
     var marker = L.marker([x, y], {icon: this.markerIcon});
-    marker.addTo(this.map);
+    marker.addTo(this.userLayer);
   }
 
   render() {
@@ -120,7 +134,7 @@ class MapsPage extends React.Component {
           className="map"
         >
         </div>
-        <UploadForm AdjustMap={this.MoveMapTo.bind(this)}>
+        <UploadForm parentMap={this}>
         </UploadForm>
         <form>
           <input name="locationSearch" type="text"></input>

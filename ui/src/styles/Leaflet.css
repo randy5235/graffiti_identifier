@@ -209,9 +209,12 @@
 	cursor: pointer;
 	}
 .leaflet-grab {
+	/*
 	cursor: -webkit-grab;
 	cursor:    -moz-grab;
 	cursor:         grab;
+	*/
+	cursor: pointer;
 	}
 .leaflet-crosshair,
 .leaflet-crosshair .leaflet-interactive {
@@ -224,10 +227,13 @@
 .leaflet-dragging .leaflet-grab,
 .leaflet-dragging .leaflet-grab .leaflet-interactive,
 .leaflet-dragging .leaflet-marker-draggable {
+	/*
 	cursor: move;
 	cursor: -webkit-grabbing;
 	cursor:    -moz-grabbing;
 	cursor:         grabbing;
+	*/
+	cursor:pointer;	
 	}
 
 /* marker & overlays interactivity */
