@@ -1,6 +1,6 @@
 import React from "react";
 import EXIF from "exif-js";
-import { makeStyles } from '@material-ui/core/styles';
+import '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
@@ -21,9 +21,9 @@ class UploadForm extends React.Component {
   }
 
   ValidateForm = (e) => {
-    // ====================================================================================
-    // Convert gps coordinates as presented in exif data to a comma separated decimal pair.
-    // ====================================================================================
+    // ==================================================================
+    // Convert gps coordinates as presented in exif data to an array pair
+    // ==================================================================
     function GPSDegToDec(lat, latRef, lon, lonRef){
       var retLat = 0;
       var latComps = lat.toString().split(",");
@@ -49,7 +49,7 @@ class UploadForm extends React.Component {
 
     // Stop submit until verified
     e.preventDefault();
-    var uploadForm = this;
+    var parent = this.props.parentMap;
 
     var files = document.getElementById("upload-image").files;
     if (files[0] !== undefined) {
@@ -65,24 +65,31 @@ class UploadForm extends React.Component {
           var lon = EXIF.getTag(this, "GPSLongitude");
           var lonRef = EXIF.getTag(this, "GPSLongitudeRef");
 
-          uploadForm.props.parentMap.placingGraffiti = true;
           var coordinates = [0,0];
 
           // if any gps data is bad or nonexistent, slap it in the middle of the current map view
           if (lat === undefined || latRef === undefined || lon === undefined || lonRef === undefined) 
           {
-            coordinates = uploadForm.props.parentMap.map.getCenter();
+            // if the marker is not inside current view put it in the center of the view
+            if (!parent.map.getBounds().contains(parent.userMarker.getLatLng()))
+            {
+              coordinates = parent.map.getCenter();
+            }
+            else
+            {
+              coordinates = parent.userMarker.getLatLng();
+            }
           }
           else // set the marker and view to those given by exif
           {
             coordinates = GPSDegToDec(lat, latRef, lon, lonRef);
           }
           
-          uploadForm.props.parentMap.map.setView(coordinates, 13);
+          parent.map.setView(coordinates, 13);
             
           var src = URL.createObjectURL(files[0]);
-          uploadForm.props.parentMap.userMarker
-            .addTo(uploadForm.props.parentMap.userLayer)
+          parent.userMarker
+            .addTo(parent.userLayer)
             .setLatLng(coordinates)
             .bindPopup()
             .setPopupContent("<img style='height:200px; width:200px;' id='marker-image' src='"+src+"' alt='uploaded-image'></img>")
@@ -90,6 +97,7 @@ class UploadForm extends React.Component {
             .dragging.enable();
         });
       }
+      parent.placingGraffiti = true;
       this.setState((state) => {
         return {buttonState: 'none', confirmState: 'flex', cancelState: 'flex'}
       });
@@ -111,11 +119,12 @@ class UploadForm extends React.Component {
   };
   clearForm = () =>
   {
-    this.props.parentMap.placingGraffiti = false;
     this.props.parentMap.userLayer.clearLayers();
+    this.props.parentMap.userMarker.setLatLng([1,1]);
     this.uploadFile.current.value = "";
     this.uploadLat.current.value = "";
     this.uploadLon.current.value = "";
+    this.props.parentMap.placingGraffiti = false;
     this.setState((state) => {
       return {buttonState: 'flex', confirmState: 'none', cancelState: 'none'}
     });

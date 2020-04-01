@@ -1,6 +1,6 @@
 import React from "react";
 import L from "leaflet";
-import LCG from "leaflet-control-geocoder";
+import "leaflet-control-geocoder";
 import "../styles/Leaflet.css";
 import "../styles/leaflet-control-geocoder.css";
 import iconImg from "../styles/images/marker-icon.png";
@@ -54,8 +54,6 @@ class MapsPage extends React.Component {
 
     this.userLayer = L.layerGroup().addTo(this.map);
 
-    const control = L.Control.GeoCoder;
-
     const geocoder = L.Control.Geocoder.nominatim();
 
     L.Control.geocoder().addTo(this.map);
@@ -68,18 +66,21 @@ class MapsPage extends React.Component {
           results => {
             let r = results[0];
             if (r) {
-              if (this.userMarker) {
-                this.userMarker
-                  .setLatLng(e.latlng)
-                  .bindPopup();
-                  if(!this.placingGraffiti)
-                  {
-                    this.userMarker.setPopupContent(r.html || r.name);
-                  }
+              this.userMarker
+                .setLatLng(e.latlng)
+                .bindPopup();
+                if(!this.placingGraffiti)
+                {
                   this.userMarker
-                  .openPopup()
-                  .dragging.enable();
-              }
+                  .setPopupContent(r.html || r.name)
+                  .dragging.disable();
+
+                }
+                else
+                {
+                  this.userMarker.dragging.enable();
+                }
+                this.userMarker.openPopup();
             }
           }
         );
@@ -88,7 +89,6 @@ class MapsPage extends React.Component {
 
     this.userMarker.on('dragend', e => {
       this.userMarker
-        .bindPopup()
         .openPopup();
     });
     
@@ -115,13 +115,6 @@ class MapsPage extends React.Component {
         {enableHighAccuracy: true}
       );
     }
-  }
-
-  // Function to pass to children for setting map view
-  MoveMapTo=(x, y, zoom)=>{
-    this.map.setView([x, y], zoom);
-    var marker = L.marker([x, y], {icon: this.markerIcon});
-    marker.addTo(this.userLayer);
   }
 
   render() {
