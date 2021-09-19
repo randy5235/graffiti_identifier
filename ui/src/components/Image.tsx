@@ -1,6 +1,14 @@
 import React from "react";
 
-const ImagePage = (props) => (
+interface Props {
+  match: {
+    params: {
+      imageName: string;
+    }
+  }
+}
+
+const ImagePage = (props: Props) => (
   <div>
     <div>
       <h2>Image Page</h2>

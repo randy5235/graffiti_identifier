@@ -1,13 +1,19 @@
 /* eslint-disable no-console */
-import { Router } from 'express';
+import { Request, Response, Router} from 'express';
 import multer from 'multer';
 import { ExifImage } from 'exif';
+
+export interface AugmentedRequest extends Request {
+  file?: {
+    filename: string;
+  };
+}
 
 const upload = multer({ dest: 'uploads/' });
 
 const router = Router();
 
-router.route('/upload').post(upload.single('image'), (req, res) => {
+router.route('/upload').post(upload.single('image'), (req: AugmentedRequest, res: Response) => {
   // eslint-disable-next-line no-console
   console.log('req.file: ', req.file);
   try {
