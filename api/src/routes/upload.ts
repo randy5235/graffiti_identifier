@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-const express = require('express');
-const multer = require('multer');
-const ExifImage = require('exif').ExifImage;
+import { Router } from 'express';
+import multer from 'multer';
+import { ExifImage } from 'exif';
 
 const upload = multer({ dest: 'uploads/' });
 
-const router = express.Router();
+const router = Router();
 
 router.route('/upload').post(upload.single('image'), (req, res) => {
   // eslint-disable-next-line no-console
@@ -29,4 +29,5 @@ router.route('/upload').post(upload.single('image'), (req, res) => {
   res.redirect(`http://localhost:3001/images/${req.file.filename}`)
 });
 
-module.exports = router;
+export { router };
+

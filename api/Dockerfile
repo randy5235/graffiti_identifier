@@ -13,6 +13,8 @@ RUN npm install --silent
 # RUN npm install react-scripts@3.0.1 -g --silent
 
 COPY . .
+
+# RUN npm run tsc
 # start app
 CMD ["npm", "run", "dev"]
 
